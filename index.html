@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Anonymous Confession Box</title>
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 32px;
+      margin-bottom: 30px;
+    }
+
+    textarea {
+      width: 90%;
+      max-width: 500px;
+      height: 120px;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      resize: none;
+      background: #222;
+      color: white;
+    }
+
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #ff5e7e;
+      border: none;
+      border-radius: 5px;
+      color: white;
+      cursor: pointer;
+    }
+
+    #successMessage {
+      margin-top: 20px;
+      color: #00ff88;
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+  <h1>💬 Send Your Confession</h1>
+
+  <textarea id="confessionInput" placeholder="Write your anonymous confession..."></textarea><br>
+  <button onclick="submitConfession()">Send</button>
+
+  <div id="successMessage"></div>
+
+  <script>
+    async function submitConfession() {
+      const message = document.getElementById("confessionInput").value.trim();
+      const successBox = document.getElementById("successMessage");
+
+      if (!message) {
+        alert("Please write something before submitting!");
+        return;
+      }
+
+      try {
+        await fetch("https://script.google.com/macros/s/AKfycbw1KOeSkiDXX4imHnwXIALq2DHALtjaDhjzvVlN-U2amGvXQ-SCQo0KBKvcyir0fidnCQ/exec", {
+          method: "POST",
+          body: new URLSearchParams({ confession: message })
+        });
+
+        document.getElementById("confessionInput").value = "";
+        successBox.textContent = "✅ Confession sent anonymously!";
+      } catch (error) {
+        successBox.textContent = "❌ Error submitting confession. Try again.";
+      }
+    }
+  </script>
+</body>
+</html>
