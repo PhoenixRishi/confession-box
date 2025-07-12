@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin - View Confessions</title>
+  <style>
+    body {
+      background-color: #111;
+      color: white;
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      text-align: center;
+    }
+
+    input[type="password"] {
+      padding: 10px;
+      font-size: 16px;
+      width: 250px;
+    }
+
+    button {
+      padding: 10px 20px;
+      background-color: #ff5e7e;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    #confessionBox {
+      background-color: #222;
+      padding: 20px;
+      margin-top: 30px;
+      border-radius: 10px;
+      font-size: 18px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🔒 Admin Panel</h1>
+  <p>Enter password to view confessions</p>
+
+  <input type="password" id="adminPass" placeholder="Enter admin password">
+  <br>
+  <button onclick="checkAccess()">Unlock</button>
+
+  <div id="confessionBox" style="display:none;"></div>
+
+  <script>
+    const password = "letmein"; // change this if needed
+
+    function checkAccess() {
+      const input = document.getElementById("adminPass").value;
+      if (input !== password) {
+        alert("❌ Incorrect password.");
+        return;
+      }
+
+      fetch("https://script.google.com/macros/s/AKfycbw1KOeSkiDXX4imHnwXIALq2DHALtjaDhjzvVlN-U2amGvXQ-SCQo0KBKvcyir0fidnCQ/exec")
+        .then(res => res.json())
+        .then(data => {
+          if (!Array.isArray(data) || data.length === 0) {
+            document.getElementById("confessionBox").innerText = "No confessions yet.";
+          } else {
+            let html = `<h2>Total Confessions: ${data.length}</h2><hr>`;
+            data.reverse().forEach((item, index) => {
+              html += `<p><strong>#${data.length - index}:</strong> ${item.confession}</p><hr>`;
+            });
+            document.getElementById("confessionBox").innerHTML = html;
+          }
+          document.getElementById("confessionBox").style.display = "block";
+        })
+        .catch(err => {
+          document.getElementById("confessionBox").innerText = "⚠️ Error loading confessions.";
+          console.error(err);
+        });
+    }
+  </script>
+</body>
+</html>
