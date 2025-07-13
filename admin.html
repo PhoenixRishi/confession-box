@@ -1,84 +1,94 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Admin - View Confessions</title>
+  <title>Admin – Confession Viewer</title>
   <style>
     body {
       background-color: #111;
       color: white;
       font-family: Arial, sans-serif;
-      padding: 30px;
+      padding: 40px;
       text-align: center;
     }
 
-    input[type="password"] {
+    input, button {
       padding: 10px;
       font-size: 16px;
-      width: 250px;
+      margin: 10px;
+      border-radius: 5px;
+      border: none;
     }
 
     button {
-      padding: 10px 20px;
       background-color: #ff5e7e;
       color: white;
-      border: none;
-      border-radius: 5px;
       cursor: pointer;
-      margin-top: 10px;
     }
 
-    #confessionBox {
-      background-color: #222;
+    .confession-box {
+      background: #222;
       padding: 20px;
       margin-top: 30px;
       border-radius: 10px;
       font-size: 18px;
-      max-width: 600px;
+      max-width: 500px;
       margin-left: auto;
       margin-right: auto;
+    }
+
+    #nextBtn {
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
 
-  <h1>🔒 Admin Panel</h1>
-  <p>Enter password to view confessions</p>
+  <h1>🔐 Admin Confession Viewer</h1>
 
-  <input type="password" id="adminPass" placeholder="Enter admin password">
-  <br>
-  <button onclick="checkAccess()">Unlock</button>
+  <input type="password" id="passwordInput" placeholder="Enter admin password">
+  <button onclick="checkAccess()">Enter</button>
 
-  <div id="confessionBox" style="display:none;"></div>
+  <div id="viewer" style="display: none;">
+    <div id="confessionDisplay" class="confession-box">Loading...</div>
+    <button id="nextBtn" onclick="showNext()">Next</button>
+  </div>
 
   <script>
-    const password = "letmein"; // change this if needed
+    const PASSWORD = "letmein"; // change if needed
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw1KOeSkiDXX4imHnwXIALq2DHALtjaDhjzvVlN-U2amGvXQ-SCQo0KBKvcyir0fidnCQ/exec";
+
+    let confessions = [];
+    let currentIndex = 0;
 
     function checkAccess() {
-      const input = document.getElementById("adminPass").value;
-      if (input !== password) {
-        alert("❌ Incorrect password.");
-        return;
+      const entered = document.getElementById('passwordInput').value;
+      if (entered === PASSWORD) {
+        fetch(SCRIPT_URL)
+          .then(res => res.json())
+          .then(data => {
+            confessions = data;
+            if (confessions.length === 0) {
+              document.getElementById('confessionDisplay').innerText = "No confessions yet.";
+            } else {
+              document.getElementById('confessionDisplay').innerText = confessions[0];
+            }
+            document.getElementById('viewer').style.display = 'block';
+          })
+          .catch(err => {
+            console.error(err);
+            alert("❌ Failed to fetch data.");
+          });
+      } else {
+        alert("❌ Wrong password.");
       }
+    }
 
-      fetch("https://script.google.com/macros/s/AKfycbw1KOeSkiDXX4imHnwXIALq2DHALtjaDhjzvVlN-U2amGvXQ-SCQo0KBKvcyir0fidnCQ/exec")
-        .then(res => res.json())
-        .then(data => {
-          if (!Array.isArray(data) || data.length === 0) {
-            document.getElementById("confessionBox").innerText = "No confessions yet.";
-          } else {
-            let html = `<h2>Total Confessions: ${data.length}</h2><hr>`;
-            data.reverse().forEach((item, index) => {
-              html += `<p><strong>#${data.length - index}:</strong> ${item.confession}</p><hr>`;
-            });
-            document.getElementById("confessionBox").innerHTML = html;
-          }
-          document.getElementById("confessionBox").style.display = "block";
-        })
-        .catch(err => {
-          document.getElementById("confessionBox").innerText = "⚠️ Error loading confessions.";
-          console.error(err);
-        });
+    function showNext() {
+      if (confessions.length === 0) return;
+      currentIndex = (currentIndex + 1) % confessions.length;
+      document.getElementById('confessionDisplay').innerText = confessions[currentIndex];
     }
   </script>
+
 </body>
 </html>
